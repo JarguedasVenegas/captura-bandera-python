@@ -1,1 +1,348 @@
-:root{color-scheme:dark;--bg:#080f21;--panel:#111d36;--line:#2b3d5d;--text:#ecf5ff;--muted:#9eb1cb;--cyan:#55e4fa;--yellow:#ffd166;--green:#66e6aa}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0,#182b52 0,transparent 55%),var(--bg);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);min-height:100vh}.stars{position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(#b3d5ff33 1px,transparent 1px);background-size:34px 34px;opacity:.35}.shell{position:relative;max-width:1180px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:26px}.brand{font-weight:900;letter-spacing:2px;font-size:22px}.accent,em{color:var(--cyan);font-style:normal}.topright{display:flex;align-items:center;gap:12px}#clock{font-variant-numeric:tabular-nums;color:var(--yellow);font-weight:800}.panel{background:#101d36ed;border:1px solid var(--line);border-radius:22px;box-shadow:0 20px 50px #0003}.hero{text-align:center;padding:clamp(30px,7vw,85px) 25px;margin:35px auto;max-width:790px}.eyebrow{font-size:12px;letter-spacing:2px;color:var(--cyan);font-weight:800}.hero h1{font-size:clamp(44px,7vw,80px);line-height:1.06;margin:20px 0}.hero p{max-width:570px;margin:0 auto 26px;color:#c3d2e5}.form{max-width:400px;margin:auto;display:grid;gap:10px;text-align:left}label{display:block;font-size:12px;letter-spacing:1.5px;font-weight:800;color:#b8d2ec;margin:12px 0 8px}input{width:100%;padding:15px 16px;border:1px solid #456083;border-radius:10px;background:#07132b;color:white;font:inherit;outline:none}input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #55e4fa24}button{cursor:pointer;border:0;border-radius:10px;padding:13px 18px;font-weight:850;font-size:14px;transition:transform .15s,filter .15s}button:hover:not(:disabled){filter:brightness(1.12);transform:translateY(-1px)}button:disabled{opacity:.55;cursor:not-allowed}.primary{background:linear-gradient(120deg,#4ce1e7,#4da4fa);color:#07152b}.secondary{background:#213654;color:#e2f2ff;border:1px solid #456080}.small{padding:8px 12px;font-size:12px}.hintline{margin-top:22px;color:var(--muted);font-size:13px}.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.hud>div{padding:14px 18px;background:#142441;border:1px solid var(--line);border-radius:14px;display:grid}.muted{color:var(--muted);font-size:11px;letter-spacing:1.3px;font-weight:700}.hud strong{font-size:20px;overflow-wrap:anywhere}.progress{height:9px;background:#243754;border-radius:20px;overflow:hidden;margin:18px 0 24px}.progress>div{height:100%;width:0;background:linear-gradient(90deg,#46c2ed,#72f1b1);transition:width .3s}.layout{display:grid;grid-template-columns:290px minmax(0,1fr);gap:18px}.sidebar,.challenge{padding:24px}.sidebar h2{font-size:13px;letter-spacing:1.4px;color:var(--muted);margin:0 0 20px}.mission{display:flex;gap:12px;align-items:center;padding:14px 10px;border-radius:10px;margin-bottom:7px;color:#8da1bc;border:1px solid transparent}.mission.active{background:#1a3857;color:white;border-color:#347ca1}.mission.done{color:var(--green)}.mission .num{display:grid;place-items:center;width:34px;height:34px;flex:none;background:#253a57;border-radius:9px;font-weight:800}.mission span:last-child{font-size:13px;font-weight:750}.asidefoot{font-size:12px;color:var(--muted);margin-top:22px}.chapter{display:flex;justify-content:space-between;align-items:center;gap:10px}.points{color:var(--yellow);font-weight:900}.challenge h2{font-size:clamp(25px,4vw,37px);margin:12px 0}.challenge>p{color:#c1d1e6}.codehead{background:#25344c;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;font:12px monospace;color:#b8dbff}pre{background:#071124;border:1px solid #314661;border-top:0;margin:0 0 20px;padding:23px;overflow:auto;border-radius:0 0 12px 12px;color:#a9f0c4;font:15px/1.7 Consolas,monospace;white-space:pre}.question{font-weight:800!important;color:white!important}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.feedback{margin-top:15px;min-height:24px;font-weight:750}.feedback.good{color:var(--green)}.feedback.bad{color:#ff9f9f}.hintbox{background:#2a2b42;border-left:4px solid var(--yellow);padding:13px;margin-top:15px;border-radius:7px;color:#ffe4a4}#next{margin-top:15px}.result{display:grid;gap:7px;background:#172b47;padding:24px;border-radius:15px;max-width:400px;margin:20px auto}.result strong{font-size:40px;color:var(--yellow)}.center{justify-content:center}footer{text-align:center;color:#8197b5;font-size:12px;padding:28px 0}@media(max-width:780px){.layout{grid-template-columns:1fr}.hud strong{font-size:16px}.sidebar{padding:16px}.sidebar #missions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.mission{padding:8px;gap:6px}.mission .num{width:28px;height:28px}.challenge{padding:18px}}@media(max-width:470px){.shell{padding:12px}.brand{font-size:15px}.topright{gap:5px}#clock{font-size:12px}.hud{gap:5px}.hud>div{padding:9px}.hud strong{font-size:13px}.hud .muted{font-size:9px}.sidebar #missions{grid-template-columns:1fr}}
+
+/* ==========================================
+   CAPTURA LA BANDERA PYTHON 2.0
+   DISEÑO DEL VIDEOJUEGO
+========================================== */
+
+/* ESTILOS GENERALES */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(
+        135deg,
+        #07152e,
+        #102b50,
+        #06101f
+    );
+    color: #ffffff;
+    min-height: 100vh;
+}
+
+/* ENCABEZADO */
+
+.encabezado {
+    text-align: center;
+    padding: 35px 15px;
+    background: #07152e;
+    border-bottom: 3px solid #00e5a8;
+}
+
+.encabezado h1 {
+    color: #00e5a8;
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.encabezado p {
+    color: #d6e6ff;
+}
+
+/* CONTENEDOR PRINCIPAL */
+
+main {
+    max-width: 1000px;
+    margin: auto;
+    padding: 25px;
+}
+
+/* TARJETAS */
+
+.tarjeta {
+    background: #102443;
+    padding: 30px;
+    margin-bottom: 25px;
+    border-radius: 15px;
+    border: 1px solid #24517d;
+    box-shadow: 0 8px 25px #00000045;
+}
+
+.tarjeta h2 {
+    color: #00e5a8;
+}
+
+/* FORMULARIOS */
+
+label {
+    display: block;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 13px;
+    border-radius: 8px;
+    border: 1px solid #47749f;
+    background: #07152e;
+    color: white;
+    font-size: 16px;
+}
+
+/* BOTONES */
+
+button {
+    background: #00c896;
+    color: #041b18;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 18px;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #00f5b5;
+    transform: translateY(-2px);
+}
+
+button:disabled {
+    background: #64748b;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.botonSecundario {
+    background: #244d78;
+    color: white;
+}
+
+.botonSecundario:hover {
+    background: #32699e;
+}
+
+/* DATOS DEL JUGADOR */
+
+.datosJugador {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    background: #07152e;
+    padding: 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.datosJugador h2 {
+    margin: 0;
+}
+
+.datosJugador strong {
+    color: #00e5a8;
+}
+
+/* BARRA DE PROGRESO */
+
+.barraExterior {
+    width: 100%;
+    height: 18px;
+    background: #06101f;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+#barraProgreso {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(
+        90deg,
+        #00c896,
+        #45eaff
+    );
+    transition: width 0.4s;
+}
+
+/* PREGUNTAS */
+
+#numeroPregunta {
+    color: #45eaff;
+    font-weight: bold;
+}
+
+#nivelPregunta {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 20px;
+    background: #244d78;
+    color: #ffffff;
+}
+
+#tituloPregunta {
+    font-size: 25px;
+    color: #ffffff;
+}
+
+#enunciado {
+    color: #e2edff;
+}
+
+/* BLOQUES DE CÓDIGO PYTHON */
+
+pre {
+    background: #020a15;
+    color: #7dffbc;
+    padding: 22px;
+    border-radius: 10px;
+    border-left: 4px solid #00e5a8;
+    overflow-x: auto;
+    line-height: 1.7;
+    font-size: 15px;
+}
+
+code {
+    font-family: Consolas, monospace;
+}
+
+/* OPCIONES DE RESPUESTA */
+
+#opciones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.opcion {
+    background: #193a61;
+    color: white;
+    border: 1px solid #376c9c;
+    text-align: left;
+    margin-top: 0;
+    min-height: 60px;
+}
+
+.opcion:hover {
+    background: #285a8d;
+}
+
+.opcion.correcta {
+    background: #087f5b;
+    border-color: #00e5a8;
+}
+
+.opcion.incorrecta {
+    background: #9c2838;
+    border-color: #ff7585;
+}
+
+/* MENSAJES */
+
+.mensaje {
+    font-weight: bold;
+    margin-top: 15px;
+    line-height: 1.6;
+}
+
+#textoPista {
+    background: #42351b;
+    color: #ffe5a3;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+/* CLASIFICACIÓN */
+
+.tablaContenedor {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th {
+    background: #087f78;
+    color: white;
+    padding: 14px;
+    text-align: left;
+}
+
+td {
+    padding: 13px;
+    border-bottom: 1px solid #315273;
+}
+
+tbody tr:nth-child(even) {
+    background: #153252;
+}
+
+tbody tr:hover {
+    background: #244d78;
+}
+
+/* PANTALLA FINAL */
+
+#pantallaFinal {
+    text-align: center;
+    border: 2px solid #00e5a8;
+}
+
+#resultadoFinal {
+    color: #45eaff;
+    font-size: 28px;
+}
+
+/* OCULTAR ELEMENTOS */
+
+.oculto {
+    display: none !important;
+}
+
+/* PIE DE PÁGINA */
+
+footer {
+    text-align: center;
+    padding: 25px;
+    background: #06101f;
+    color: #a8c1df;
+    font-size: 14px;
+}
+
+/* ADAPTACIÓN A CELULARES */
+
+@media (max-width: 650px) {
+
+    .encabezado h1 {
+        font-size: 24px;
+    }
+
+    main {
+        padding: 12px;
+    }
+
+    .tarjeta {
+        padding: 18px;
+    }
+
+    #opciones {
+        grid-template-columns: 1fr;
+    }
+
+    .datosJugador {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    #tituloPregunta {
+        font-size: 21px;
+    }
+}
