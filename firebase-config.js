@@ -1,11 +1,11 @@
+
 export const firebaseConfig = {
-  apiKey: "REEMPLAZAR_API_KEY",
-  authDomain: "REEMPLAZAR_PROJECT_ID.firebaseapp.com",
-  projectId: "REEMPLAZAR_PROJECT_ID",
-  storageBucket: "REEMPLAZAR_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "REEMPLAZAR_SENDER_ID",
-  appId: "REEMPLAZAR_APP_ID"
+  apiKey: "AIzaSyD-Vlxn1Gh-c--BF7App6VC2LR8NN7SHRU",
+  authDomain: "captura-bandera-python.firebaseapp.com",
+  projectId: "captura-bandera-python",
+  storageBucket: "captura-bandera-python.firebasestorage.app",
+  messagingSenderId: "306142068727",
+  appId: "1:306142068727:web:0e2f56a5611057b35738f2"
 };
 
-export const configured =
-  !firebaseConfig.apiKey.startsWith("REEMPLAZAR");
+export const configured = true;
