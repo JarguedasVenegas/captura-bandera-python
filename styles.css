@@ -1,7 +1,446 @@
 
-/* =========================================
-   CELEBRACIÓN DE BANDERAS
-   ========================================= */
+/* ==========================================
+   CAPTURA LA BANDERA PYTHON
+   ESTILOS COMPLETOS DEL VIDEOJUEGO
+   ========================================== */
+
+/* CONFIGURACIÓN GENERAL */
+
+:root {
+  --fondo: #071426;
+  --fondo-secundario: #0d2035;
+  --tarjeta: #122b40;
+  --tarjeta-clara: #18394f;
+  --verde: #22c55e;
+  --verde-claro: #86efac;
+  --amarillo: #facc15;
+  --blanco: #f8fafc;
+  --texto-secundario: #cbd5e1;
+  --borde: #315369;
+  --rojo: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: var(--blanco);
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(34, 197, 94, 0.12),
+      transparent 35%
+    ),
+    linear-gradient(
+      135deg,
+      #061222,
+      #0c2136,
+      #071426
+    );
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4 {
+  margin-top: 0;
+  line-height: 1.3;
+}
+
+h1 {
+  color: var(--verde-claro);
+  font-size: clamp(28px, 5vw, 45px);
+}
+
+h2 {
+  color: var(--verde-claro);
+}
+
+h3 {
+  color: var(--blanco);
+}
+
+p {
+  color: var(--texto-secundario);
+}
+
+a {
+  color: var(--verde-claro);
+}
+
+.oculto {
+  display: none !important;
+}
+
+/* CONTENEDORES */
+
+main {
+  width: min(1100px, 94%);
+  margin: 30px auto;
+}
+
+.contenedor,
+.container {
+  width: min(1100px, 94%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+header {
+  text-align: center;
+  padding: 28px 15px;
+}
+
+header p {
+  color: var(--texto-secundario);
+}
+
+/* TARJETAS PRINCIPALES */
+
+.tarjeta {
+  background: linear-gradient(
+    145deg,
+    rgba(18, 43, 64, 0.98),
+    rgba(12, 32, 52, 0.98)
+  );
+  border: 1px solid var(--borde);
+  border-radius: 20px;
+  padding: clamp(20px, 4vw, 35px);
+  margin: 20px auto;
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.28),
+    0 0 20px rgba(34, 197, 94, 0.04);
+}
+
+#pantallaInicio,
+#pantallaJuego,
+#pantallaFinal {
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#pantallaInicio {
+  text-align: center;
+}
+
+#pantallaFinal {
+  text-align: center;
+}
+
+/* FORMULARIOS */
+
+label {
+  display: block;
+  margin: 15px 0 7px;
+  font-weight: 600;
+  color: var(--verde-claro);
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 13px 15px;
+  border-radius: 10px;
+  border: 1px solid var(--borde);
+  background: #091b2e;
+  color: var(--blanco);
+  font-family: inherit;
+  font-size: 16px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--verde);
+  outline-offset: 2px;
+  border-color: var(--verde);
+}
+
+/* BOTONES GENERALES */
+
+button {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+button:focus-visible {
+  outline: 3px solid var(--amarillo);
+  outline-offset: 3px;
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+#btnIniciar,
+#btnSiguiente {
+  display: inline-block;
+  padding: 14px 26px;
+  margin-top: 20px;
+  background: linear-gradient(
+    135deg,
+    #22c55e,
+    #16a34a
+  );
+  color: #052e16;
+  box-shadow: 0 5px 20px rgba(34, 197, 94, 0.2);
+}
+
+#btnIniciar:hover:not(:disabled),
+#btnSiguiente:hover:not(:disabled) {
+  background: #86efac;
+}
+
+#btnPista {
+  padding: 12px 20px;
+  margin: 12px 0;
+  background: #eab308;
+  color: #422006;
+}
+
+#btnPista:hover:not(:disabled) {
+  background: #fde047;
+}
+
+#mensajeInicio {
+  margin-top: 15px;
+  color: #fcd34d;
+}
+
+/* INFORMACIÓN DEL JUGADOR */
+
+#nombreJugador {
+  color: var(--verde-claro);
+  font-weight: bold;
+}
+
+#puntos,
+#banderas {
+  color: var(--amarillo);
+  font-weight: 800;
+  font-size: 1.3em;
+  display: inline-block;
+}
+
+/* ENCABEZADOS DE MISIÓN */
+
+#numeroPregunta {
+  display: inline-block;
+  padding: 7px 15px;
+  margin: 10px 0;
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--verde-claro);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+#tituloPregunta {
+  margin: 15px 0;
+  font-size: clamp(22px, 4vw, 30px);
+  color: var(--verde-claro);
+}
+
+#nivelPregunta {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: #213e53;
+  color: var(--amarillo);
+  font-weight: bold;
+}
+
+/* CÓDIGO PYTHON */
+
+#codigoPython,
+pre,
+pre code {
+  display: block;
+  width: 100%;
+  padding: 20px;
+  background: #030c17;
+  color: #a7f3d0;
+  border: 1px solid #24513e;
+  border-left: 4px solid var(--verde);
+  border-radius: 12px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 15px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow-x: auto;
+  text-align: left;
+  tab-size: 4;
+}
+
+#enunciado {
+  font-size: 18px;
+  color: var(--blanco);
+  font-weight: 600;
+  margin: 20px 0;
+}
+
+/* OPCIONES DE RESPUESTA */
+
+#opciones {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.opcion {
+  display: block;
+  width: 100%;
+  padding: 17px 20px;
+  text-align: left;
+  background: #19354b;
+  color: var(--blanco);
+  border: 1px solid #365a70;
+  border-radius: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.opcion:hover:not(:disabled) {
+  background: #23506a;
+  border-color: var(--verde);
+}
+
+.opcion.correcta {
+  background: #14532d;
+  border: 2px solid #4ade80;
+  color: #dcfce7;
+}
+
+.opcion.incorrecta {
+  background: #5b1f2b;
+  border: 2px solid #f87171;
+  color: #fee2e2;
+}
+
+.opcion:disabled {
+  cursor: default;
+}
+
+#mensajeRespuesta {
+  margin-top: 18px;
+  font-weight: bold;
+  font-size: 16px;
+  min-height: 24px;
+}
+
+/* PISTAS */
+
+#textoPista {
+  padding: 15px;
+  margin-top: 12px;
+  background: rgba(250, 204, 21, 0.1);
+  color: #fde68a;
+  border: 1px solid #a16207;
+  border-radius: 10px;
+  text-align: left;
+}
+
+/* BARRA DE PROGRESO */
+
+.barra-progreso,
+.progreso,
+.progress {
+  width: 100%;
+  height: 16px;
+  background: #061321;
+  border-radius: 30px;
+  overflow: hidden;
+  margin: 15px 0;
+}
+
+#barraProgreso {
+  height: 100%;
+  min-height: 12px;
+  width: 0;
+  border-radius: 30px;
+  background: linear-gradient(
+    90deg,
+    #16a34a,
+    #4ade80,
+    #bef264
+  );
+  transition: width 0.5s ease;
+}
+
+/* TABLAS Y RANKING */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: rgba(12, 32, 52, 0.8);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+thead {
+  background: #173b4c;
+}
+
+th {
+  color: var(--verde-claro);
+  font-weight: bold;
+}
+
+th,
+td {
+  padding: 13px 12px;
+  text-align: left;
+  border-bottom: 1px solid #315369;
+}
+
+tbody tr:hover {
+  background: rgba(34, 197, 94, 0.07);
+}
+
+.primero-ranking {
+  background: rgba(250, 204, 21, 0.16);
+}
+
+.segundo-ranking {
+  background: rgba(148, 163, 184, 0.16);
+}
+
+.tercero-ranking {
+  background: rgba(251, 146, 60, 0.16);
+}
+
+/* CELEBRACIÓN DE BANDERAS */
 
 .celebracion-bandera {
   position: fixed;
@@ -10,8 +449,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(3, 10, 25, 0.9);
   padding: 15px;
+  background: rgba(3, 10, 25, 0.9);
 }
 
 .celebracion-contenido {
@@ -25,7 +464,7 @@
     #14532d
   );
   border: 2px solid #4ade80;
-  box-shadow: 0 0 40px rgba(74, 222, 128, 0.3);
+  box-shadow: 0 0 45px rgba(74, 222, 128, 0.3);
   color: white;
 }
 
@@ -35,15 +474,15 @@
 }
 
 .celebracion-titulo {
-  font-size: 28px;
   color: #86efac;
+  font-size: 28px;
   margin: 15px 0;
 }
 
 .celebracion-puntos {
-  font-size: 36px;
-  font-weight: bold;
   color: #facc15;
+  font-size: 36px;
+  font-weight: 800;
   margin: 20px 0;
 }
 
@@ -52,69 +491,18 @@
   padding: 14px 30px;
   background: #22c55e;
   color: #052e16;
-  font-weight: bold;
-  font-size: 16px;
-  border: none;
   border-radius: 10px;
-  cursor: pointer;
 }
 
 .celebracion-boton:hover {
   background: #86efac;
 }
 
-/* =========================================
-   ANIMACIÓN DE PUNTOS
-   ========================================= */
-
 .puntos-animados {
   animation: resaltarPuntos 0.65s ease;
 }
 
-@keyframes resaltarPuntos {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.3);
-    color: #facc15;
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes banderaFlotante {
-  from {
-    transform: translateY(0);
-  }
-
-  to {
-    transform: translateY(-12px);
-  }
-}
-
-/* =========================================
-   MEDALLAS DEL RANKING
-   ========================================= */
-
-.primero-ranking {
-  background: rgba(250, 204, 21, 0.15);
-}
-
-.segundo-ranking {
-  background: rgba(148, 163, 184, 0.15);
-}
-
-.tercero-ranking {
-  background: rgba(251, 146, 60, 0.15);
-}
-
-/* =========================================
-   PREMIACIÓN FINAL
-   ========================================= */
+/* PREMIACIÓN FINAL */
 
 .premiacion-final {
   text-align: center;
@@ -139,7 +527,6 @@
 .premiacion-final h2 {
   color: #facc15;
   font-size: 30px;
-  margin-bottom: 15px;
 }
 
 .premiacion-final h3 {
@@ -150,14 +537,88 @@
 .premiacion-puntos {
   color: #facc15;
   font-size: 40px;
-  font-weight: bold;
+  font-weight: 800;
   margin: 20px 0;
 }
 
+/* ANIMACIONES */
+
+@keyframes banderaFlotante {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes resaltarPuntos {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.3);
+    color: #facc15;
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* DISEÑO PARA CELULARES */
+
+@media (max-width: 650px) {
+  main {
+    width: 96%;
+    margin: 12px auto;
+  }
+
+  header {
+    padding: 18px 10px;
+  }
+
+  .tarjeta {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  #codigoPython,
+  pre,
+  pre code {
+    font-size: 13px;
+    padding: 14px;
+  }
+
+  .opcion {
+    padding: 14px;
+  }
+
+  th,
+  td {
+    padding: 9px 6px;
+    font-size: 12px;
+  }
+
+  .celebracion-titulo {
+    font-size: 23px;
+  }
+
+  .premiacion-puntos {
+    font-size: 32px;
+  }
+}
+
+/* ACCESIBILIDAD */
+
 @media (prefers-reduced-motion: reduce) {
-  .celebracion-icono,
-  .puntos-animados,
-  .premiacion-trofeo {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
