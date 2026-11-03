@@ -1,348 +1,127 @@
+/* ======================================
+   EFECTOS ESPECIALES DEL VIDEOJUEGO
+   ====================================== */
 
-/* ==========================================
-   CAPTURA LA BANDERA PYTHON 2.0
-   DISEÑO DEL VIDEOJUEGO
-========================================== */
-
-/* ESTILOS GENERALES */
-
-* {
-    box-sizing: border-box;
+/* Celebración al capturar una bandera */
+.celebracion-bandera {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(3, 10, 25, 0.85);
+    animation: aparecerCelebracion 0.3s ease;
 }
 
-body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
+.celebracion-contenido {
+    width: min(90%, 420px);
+    padding: 35px 25px;
+    border-radius: 22px;
     background: linear-gradient(
-        135deg,
-        #07152e,
-        #102b50,
-        #06101f
+        145deg,
+        #102b3f,
+        #174b43
     );
-    color: #ffffff;
-    min-height: 100vh;
-}
-
-/* ENCABEZADO */
-
-.encabezado {
+    border: 2px solid #4ade80;
+    box-shadow: 0 0 45px rgba(74, 222, 128, 0.3);
     text-align: center;
-    padding: 35px 15px;
-    background: #07152e;
-    border-bottom: 3px solid #00e5a8;
-}
-
-.encabezado h1 {
-    color: #00e5a8;
-    font-size: 32px;
-    margin-bottom: 10px;
-}
-
-.encabezado p {
-    color: #d6e6ff;
-}
-
-/* CONTENEDOR PRINCIPAL */
-
-main {
-    max-width: 1000px;
-    margin: auto;
-    padding: 25px;
-}
-
-/* TARJETAS */
-
-.tarjeta {
-    background: #102443;
-    padding: 30px;
-    margin-bottom: 25px;
-    border-radius: 15px;
-    border: 1px solid #24517d;
-    box-shadow: 0 8px 25px #00000045;
-}
-
-.tarjeta h2 {
-    color: #00e5a8;
-}
-
-/* FORMULARIOS */
-
-label {
-    display: block;
-    margin-top: 18px;
-    margin-bottom: 8px;
-    font-weight: bold;
-}
-
-input,
-select {
-    width: 100%;
-    padding: 13px;
-    border-radius: 8px;
-    border: 1px solid #47749f;
-    background: #07152e;
     color: white;
-    font-size: 16px;
 }
 
-/* BOTONES */
+.celebracion-icono {
+    font-size: 75px;
+    animation: banderaFlotante 1s ease-in-out infinite alternate;
+}
 
-button {
-    background: #00c896;
-    color: #041b18;
+.celebracion-titulo {
+    font-size: 27px;
+    color: #86efac;
+    margin: 12px 0;
+}
+
+.celebracion-puntos {
+    font-size: 35px;
+    font-weight: bold;
+    color: #facc15;
+}
+
+.celebracion-boton {
+    margin-top: 22px;
+    padding: 12px 25px;
     border: none;
-    border-radius: 8px;
-    padding: 14px 20px;
-    font-size: 16px;
+    border-radius: 10px;
+    background: #22c55e;
+    color: #052e16;
     font-weight: bold;
     cursor: pointer;
-    margin-top: 18px;
-    transition: 0.2s;
 }
 
-button:hover {
-    background: #00f5b5;
-    transform: translateY(-2px);
+.celebracion-boton:hover {
+    background: #86efac;
 }
 
-button:disabled {
-    background: #64748b;
-    cursor: not-allowed;
-    transform: none;
+/* Animación de los puntos */
+.puntos-animados {
+    animation: resaltarPuntos 0.65s ease;
 }
 
-.botonSecundario {
-    background: #244d78;
-    color: white;
-}
-
-.botonSecundario:hover {
-    background: #32699e;
-}
-
-/* DATOS DEL JUGADOR */
-
-.datosJugador {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    background: #07152e;
-    padding: 18px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.datosJugador h2 {
-    margin: 0;
-}
-
-.datosJugador strong {
-    color: #00e5a8;
-}
-
-/* BARRA DE PROGRESO */
-
-.barraExterior {
-    width: 100%;
-    height: 18px;
-    background: #06101f;
-    border-radius: 20px;
-    overflow: hidden;
-    margin-bottom: 20px;
-}
-
-#barraProgreso {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(
-        90deg,
-        #00c896,
-        #45eaff
-    );
-    transition: width 0.4s;
-}
-
-/* PREGUNTAS */
-
-#numeroPregunta {
-    color: #45eaff;
+/* Medallas del ranking */
+.medalla-ranking {
+    font-size: 22px;
     font-weight: bold;
 }
 
-#nivelPregunta {
-    display: inline-block;
-    padding: 8px 14px;
-    border-radius: 20px;
-    background: #244d78;
-    color: #ffffff;
+.primero-ranking {
+    background: rgba(250, 204, 21, 0.13);
 }
 
-#tituloPregunta {
-    font-size: 25px;
-    color: #ffffff;
+.segundo-ranking {
+    background: rgba(148, 163, 184, 0.13);
 }
 
-#enunciado {
-    color: #e2edff;
+.tercero-ranking {
+    background: rgba(251, 146, 60, 0.13);
 }
 
-/* BLOQUES DE CÓDIGO PYTHON */
-
-pre {
-    background: #020a15;
-    color: #7dffbc;
-    padding: 22px;
-    border-radius: 10px;
-    border-left: 4px solid #00e5a8;
-    overflow-x: auto;
-    line-height: 1.7;
-    font-size: 15px;
-}
-
-code {
-    font-family: Consolas, monospace;
-}
-
-/* OPCIONES DE RESPUESTA */
-
-#opciones {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 20px;
-}
-
-.opcion {
-    background: #193a61;
-    color: white;
-    border: 1px solid #376c9c;
-    text-align: left;
-    margin-top: 0;
-    min-height: 60px;
-}
-
-.opcion:hover {
-    background: #285a8d;
-}
-
-.opcion.correcta {
-    background: #087f5b;
-    border-color: #00e5a8;
-}
-
-.opcion.incorrecta {
-    background: #9c2838;
-    border-color: #ff7585;
-}
-
-/* MENSAJES */
-
-.mensaje {
-    font-weight: bold;
-    margin-top: 15px;
-    line-height: 1.6;
-}
-
-#textoPista {
-    background: #42351b;
-    color: #ffe5a3;
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 15px;
-}
-
-/* CLASIFICACIÓN */
-
-.tablaContenedor {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-th {
-    background: #087f78;
-    color: white;
-    padding: 14px;
-    text-align: left;
-}
-
-td {
-    padding: 13px;
-    border-bottom: 1px solid #315273;
-}
-
-tbody tr:nth-child(even) {
-    background: #153252;
-}
-
-tbody tr:hover {
-    background: #244d78;
-}
-
-/* PANTALLA FINAL */
-
-#pantallaFinal {
-    text-align: center;
-    border: 2px solid #00e5a8;
-}
-
-#resultadoFinal {
-    color: #45eaff;
-    font-size: 28px;
-}
-
-/* OCULTAR ELEMENTOS */
-
-.oculto {
-    display: none !important;
-}
-
-/* PIE DE PÁGINA */
-
-footer {
-    text-align: center;
-    padding: 25px;
-    background: #06101f;
-    color: #a8c1df;
-    font-size: 14px;
-}
-
-/* ADAPTACIÓN A CELULARES */
-
-@media (max-width: 650px) {
-
-    .encabezado h1 {
-        font-size: 24px;
+/* Animaciones */
+@keyframes aparecerCelebracion {
+    from {
+        opacity: 0;
     }
-
-    main {
-        padding: 12px;
+    to {
+        opacity: 1;
     }
+}
 
-    .tarjeta {
-        padding: 18px;
+@keyframes banderaFlotante {
+    from {
+        transform: translateY(0);
     }
-
-    #opciones {
-        grid-template-columns: 1fr;
+    to {
+        transform: translateY(-12px);
     }
+}
 
-    .datosJugador {
-        flex-direction: column;
-        align-items: flex-start;
+@keyframes resaltarPuntos {
+    0% {
+        transform: scale(1);
+        color: white;
     }
-
-    button {
-        width: 100%;
+    50% {
+        transform: scale(1.35);
+        color: #facc15;
     }
+    100% {
+        transform: scale(1);
+    }
+}
 
-    #tituloPregunta {
-        font-size: 21px;
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    .celebracion-bandera,
+    .celebracion-icono,
+    .puntos-animados {
+        animation: none;
     }
 }
