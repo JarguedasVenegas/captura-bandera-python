@@ -1,0 +1,47 @@
+CAPTURA LA BANDERA PYTHON - INSTRUCCIONES PARA LA DOCENTE
+
+CONTENIDO
+- index.html: pantalla principal
+- styles.css: diseño adaptable a computadoras y celulares
+- game.js: cinco retos, respuestas, pistas, puntos y avance
+
+CÓMO PROBAR
+1. Extraiga el ZIP.
+2. Abra index.html con Chrome o Edge.
+3. Escriba un nombre de equipo y juegue.
+
+CÓMO PUBLICAR Y COMPARTIR POR TEAMS
+Opción sencilla con GitHub Pages:
+1. Cree una cuenta en github.com (si no tiene).
+2. Cree un repositorio público nuevo, por ejemplo python-ctf-clase.
+3. Suba index.html, styles.css y game.js a la raíz del repositorio.
+4. En Settings > Pages, seleccione Deploy from a branch, rama main, carpeta /(root) y guarde.
+5. Espere la publicación y copie el enlace de GitHub Pages.
+6. Pegue el enlace en el chat o una publicación de Teams.
+
+ALTERNATIVA: arrastre la carpeta con los tres archivos a un servicio de alojamiento estático como Netlify Drop (consulte las condiciones del servicio).
+
+USO EN SALAS DE TEAMS
+- Organice equipos de 3 a 5 estudiantes.
+- Cada equipo entra al mismo enlace desde su computadora.
+- Un integrante comparte su pantalla y el equipo discute las respuestas.
+- Al completar las cinco banderas, pulse COPIAR RESULTADO y péguelo en Teams.
+- Puede comparar resultados manualmente al regresar a la sala principal.
+
+IMPORTANTE
+- El puntaje y el progreso se guardan únicamente en el navegador/dispositivo del equipo (localStorage).
+- NO hay marcador global en vivo ni base de datos compartida.
+- Las respuestas se validan en JavaScript visible para el navegador; por ello el juego sirve para practicar, no para un examen seguro.
+- Una pista resta 20 puntos del valor de esa misión. No hay penalización por respuestas equivocadas.
+- Los 5 niveles suman 1000 puntos sin pistas.
+- Reiniciar borra el progreso local del equipo.
+- No se recopilan datos ni se envían a un servidor desde estos archivos.
+
+SOLUCIONARIO DOCENTE (NO COMPARTIR CON ESTUDIANTES)
+1. 14
+2. PLATA
+3. 10
+4. 3
+5. PYTHON-OK
+
+Puede editar textos, valores, códigos y respuestas en el arreglo 'levels' al inicio de game.js.
