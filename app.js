@@ -2,15 +2,20 @@
 import { questions } from "./questions.js";
 import { firebaseConfig, configured } from "./firebase-config.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+
 import {
   getAuth,
   signInAnonymously,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
 import {
   getFirestore,
   doc,
+  getDoc,
   setDoc,
   updateDoc,
   collection,
@@ -51,13 +56,16 @@ let banderas = 0;
 let respondida = false;
 let pistaUsada = false;
 let guardando = false;
+let intentos = 0;
+
+let cancelarRanking = null;
 
 // INICIAR FIREBASE
 
 async function iniciarFirebase() {
   if (!configured) {
     mensajeInicio.textContent =
-      "Firebase todavía no está configurado. Solicita ayuda a la docente.";
+      "Firebase todavía no está configurado.";
     btnIniciar.disabled = true;
     return;
   }
@@ -69,21 +77,28 @@ async function iniciarFirebase() {
     db = getFirestore(app);
 
     btnIniciar.disabled = true;
-    mensajeInicio.textContent = "Conectando con la competencia...";
+    mensajeInicio.textContent =
+      "Conectando con la competencia...";
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         usuario = user;
-        btnIniciar.disabled = false;
-        mensajeInicio.textContent = "";
-        escucharRanking();
+
+        if (!cancelarRanking) {
+          escucharRanking();
+        }
+
+        await recuperarPartida();
+
       } else {
+        usuario = null;
+
         try {
           await signInAnonymously(auth);
         } catch (error) {
-          mensajeInicio.textContent =
-            "No fue posible iniciar sesión. Verifica la configuración de Firebase.";
           console.error(error);
+          mensajeInicio.textContent =
+            "No fue posible iniciar sesión.";
         }
       }
     });
@@ -95,13 +110,75 @@ async function iniciarFirebase() {
   }
 }
 
-// REGISTRAR PARTICIPANTE
+// RECUPERAR UNA PARTIDA EXISTENTE
+
+async function recuperarPartida() {
+  if (!usuario) return;
+
+  btnIniciar.disabled = true;
+
+  try {
+    const referencia = doc(
+      db,
+      "participantes",
+      usuario.uid
+    );
+
+    const resultado = await getDoc(referencia);
+
+    if (resultado.exists()) {
+      jugador = resultado.data();
+
+      puntos = Number(jugador.puntos) || 0;
+      banderas = Number(jugador.banderas) || 0;
+
+      indice = Math.min(
+        banderas,
+        questions.length
+      );
+
+      nombreInput.value = jugador.nombre || "";
+      modalidadInput.value =
+        jugador.modalidad || "Individual";
+
+      document.getElementById("nombreJugador")
+        .textContent = jugador.nombre || "Participante";
+
+      actualizarMarcadores();
+
+      inicio.classList.add("oculto");
+
+      if (jugador.finalizado ||
+          indice >= questions.length) {
+        finalizarJuego();
+      } else {
+        final.classList.add("oculto");
+        juego.classList.remove("oculto");
+        mostrarPregunta();
+      }
+
+    } else {
+      btnIniciar.disabled = false;
+      mensajeInicio.textContent = "";
+    }
+
+  } catch (error) {
+    console.error(error);
+    mensajeInicio.textContent =
+      "No se pudo recuperar la partida.";
+    btnIniciar.disabled = false;
+  }
+}
+
+// REGISTRAR NUEVO PARTICIPANTE
 
 btnIniciar.addEventListener("click", async () => {
+  if (guardando) return;
+
   const nombre = nombreInput.value.trim();
   const modalidad = modalidadInput.value;
 
-  if (!nombre || nombre.length < 2) {
+  if (nombre.length < 2) {
     mensajeInicio.textContent =
       "Escribe un nombre de al menos dos caracteres.";
     return;
@@ -113,33 +190,49 @@ btnIniciar.addEventListener("click", async () => {
     return;
   }
 
+  guardando = true;
   btnIniciar.disabled = true;
 
-  jugador = {
-    uid: usuario.uid,
-    nombre: nombre,
-    modalidad: modalidad,
-    puntos: 0,
-    banderas: 0,
-    nivel: 1,
-    finalizado: false
-  };
-
   try {
-    await setDoc(doc(db, "participantes", usuario.uid), {
+    const referencia = doc(
+      db,
+      "participantes",
+      usuario.uid
+    );
+
+    const existente = await getDoc(referencia);
+
+    if (existente.exists()) {
+      await recuperarPartida();
+      return;
+    }
+
+    jugador = {
+      uid: usuario.uid,
+      nombre: nombre,
+      modalidad: modalidad,
+      puntos: 0,
+      banderas: 0,
+      nivel: 1,
+      finalizado: false
+    };
+
+    await setDoc(referencia, {
       ...jugador,
       creado: serverTimestamp(),
       actualizado: serverTimestamp()
     });
 
-    inicio.classList.add("oculto");
-    juego.classList.remove("oculto");
-
-    indice = 0;
     puntos = 0;
     banderas = 0;
+    indice = 0;
 
-    document.getElementById("nombreJugador").textContent = nombre;
+    inicio.classList.add("oculto");
+    final.classList.add("oculto");
+    juego.classList.remove("oculto");
+
+    document.getElementById("nombreJugador")
+      .textContent = nombre;
 
     actualizarMarcadores();
     mostrarPregunta();
@@ -147,43 +240,59 @@ btnIniciar.addEventListener("click", async () => {
   } catch (error) {
     console.error(error);
     mensajeInicio.textContent =
-      "No se pudo registrar. Revisa las reglas de Firestore.";
+      "No se pudo registrar el participante.";
     btnIniciar.disabled = false;
+
+  } finally {
+    guardando = false;
   }
 });
 
 // MOSTRAR PREGUNTA
 
 function mostrarPregunta() {
+  if (indice >= questions.length) {
+    finalizarJuego();
+    return;
+  }
+
   const pregunta = questions[indice];
 
   respondida = false;
   pistaUsada = false;
+  intentos = 0;
 
-  document.getElementById("numeroPregunta").textContent =
-    `MISIÓN ${indice + 1} DE ${questions.length}`;
+  document.getElementById("numeroPregunta")
+    .textContent =
+      `MISIÓN ${indice + 1} DE ${questions.length}`;
 
-  document.getElementById("tituloPregunta").textContent =
-    "🚩 " + pregunta.title;
+  document.getElementById("tituloPregunta")
+    .textContent =
+      "🚩 " + pregunta.title;
 
-  document.getElementById("nivelPregunta").textContent =
-    "Nivel: " + pregunta.level;
+  document.getElementById("nivelPregunta")
+    .textContent =
+      "Nivel: " + pregunta.level;
 
-  document.getElementById("codigoPython").textContent =
-    pregunta.code;
+  document.getElementById("codigoPython")
+    .textContent = pregunta.code;
 
-  document.getElementById("enunciado").textContent =
-    pregunta.question;
+  document.getElementById("enunciado")
+    .textContent = pregunta.question;
 
-  document.getElementById("mensajeRespuesta").textContent = "";
+  document.getElementById("mensajeRespuesta")
+    .textContent = "";
 
-  document.getElementById("textoPista").textContent = "";
-  document.getElementById("textoPista").classList.add("oculto");
+  const textoPista =
+    document.getElementById("textoPista");
+
+  textoPista.textContent = "";
+  textoPista.classList.add("oculto");
 
   btnPista.disabled = false;
   btnSiguiente.classList.add("oculto");
 
-  opciones.innerHTML = "";
+  opciones.replaceChildren();
 
   pregunta.options.forEach((opcion, posicion) => {
     const boton = document.createElement("button");
@@ -205,14 +314,19 @@ async function comprobarRespuesta(posicion, boton) {
   if (respondida || guardando) return;
 
   const pregunta = questions[indice];
-  const mensaje = document.getElementById("mensajeRespuesta");
+
+  const mensaje =
+    document.getElementById("mensajeRespuesta");
 
   if (posicion !== pregunta.answer) {
+    intentos++;
+
     boton.classList.add("incorrecta");
     boton.disabled = true;
 
     mensaje.textContent =
       "❌ Respuesta incorrecta. Analiza el código e intenta nuevamente.";
+
     return;
   }
 
@@ -229,13 +343,17 @@ async function comprobarRespuesta(posicion, boton) {
   mensaje.textContent = "Guardando bandera...";
 
   try {
-    await updateDoc(doc(db, "participantes", usuario.uid), {
-      puntos: nuevosPuntos,
-      banderas: nuevasBanderas,
-      nivel: indice + 1,
-      finalizado: nuevasBanderas === questions.length,
-      actualizado: serverTimestamp()
-    });
+    await updateDoc(
+      doc(db, "participantes", usuario.uid),
+      {
+        puntos: nuevosPuntos,
+        banderas: nuevasBanderas,
+        nivel: nuevasBanderas,
+        finalizado:
+          nuevasBanderas === questions.length,
+        actualizado: serverTimestamp()
+      }
+    );
 
     puntos = nuevosPuntos;
     banderas = nuevasBanderas;
@@ -243,9 +361,10 @@ async function comprobarRespuesta(posicion, boton) {
 
     boton.classList.add("correcta");
 
-    opciones.querySelectorAll("button").forEach(b => {
-      b.disabled = true;
-    });
+    opciones.querySelectorAll("button")
+      .forEach(b => {
+        b.disabled = true;
+      });
 
     mensaje.textContent =
       `✅ ¡Bandera capturada! +${puntosGanados} puntos.`;
@@ -264,6 +383,7 @@ async function comprobarRespuesta(posicion, boton) {
     console.error(error);
     mensaje.textContent =
       "No se pudo guardar la bandera. Intenta nuevamente.";
+
   } finally {
     guardando = false;
   }
@@ -272,15 +392,20 @@ async function comprobarRespuesta(posicion, boton) {
 // MOSTRAR PISTA
 
 btnPista.addEventListener("click", () => {
-  if (respondida) return;
+  if (respondida || guardando || pistaUsada) {
+    return;
+  }
 
   const pregunta = questions[indice];
 
-  document.getElementById("textoPista").textContent =
+  const textoPista =
+    document.getElementById("textoPista");
+
+  textoPista.textContent =
     "💡 " + pregunta.hint +
     " (Se descontarán 20 puntos al acertar).";
 
-  document.getElementById("textoPista").classList.remove("oculto");
+  textoPista.classList.remove("oculto");
 
   pistaUsada = true;
   btnPista.disabled = true;
@@ -289,7 +414,7 @@ btnPista.addEventListener("click", () => {
 // SIGUIENTE PREGUNTA
 
 btnSiguiente.addEventListener("click", () => {
-  if (!respondida) return;
+  if (!respondida || guardando) return;
 
   indice++;
 
@@ -303,16 +428,20 @@ btnSiguiente.addEventListener("click", () => {
 // ACTUALIZAR MARCADORES
 
 function actualizarMarcadores() {
-  document.getElementById("puntos").textContent = puntos;
-  document.getElementById("banderas").textContent = banderas;
+  document.getElementById("puntos")
+    .textContent = puntos;
 
-  const porcentaje = (banderas / questions.length) * 100;
+  document.getElementById("banderas")
+    .textContent = banderas;
 
-  document.getElementById("barraProgreso").style.width =
-    porcentaje + "%";
+  const porcentaje =
+    (banderas / questions.length) * 100;
+
+  document.getElementById("barraProgreso")
+    .style.width = porcentaje + "%";
 }
 
-// CLASIFICACIÓN EN TIEMPO REAL
+// RANKING EN TIEMPO REAL
 
 function escucharRanking() {
   const consulta = query(
@@ -321,73 +450,74 @@ function escucharRanking() {
     limit(50)
   );
 
-  onSnapshot(consulta, (snapshot) => {
-    ranking.innerHTML = "";
+  cancelarRanking = onSnapshot(
+    consulta,
 
-    if (snapshot.empty) {
-      const fila = document.createElement("tr");
-      const celda = document.createElement("td");
+    (snapshot) => {
+      ranking.replaceChildren();
+
+      if (snapshot.empty) {
+        const fila = ranking.insertRow();
+        const celda = fila.insertCell();
+
+        celda.colSpan = 4;
+        celda.textContent =
+          "Todavía no hay participantes.";
+
+        return;
+      }
+
+      let posicion = 1;
+
+      snapshot.forEach((documento) => {
+        const datos = documento.data();
+        const fila = ranking.insertRow();
+
+        const valores = [
+          posicion++,
+          datos.nombre || "Sin nombre",
+          Number(datos.puntos) || 0,
+          Number(datos.banderas) || 0
+        ];
+
+        valores.forEach((valor) => {
+          const celda = fila.insertCell();
+          celda.textContent = String(valor);
+        });
+      });
+    },
+
+    (error) => {
+      console.error(error);
+
+      ranking.replaceChildren();
+
+      const fila = ranking.insertRow();
+      const celda = fila.insertCell();
 
       celda.colSpan = 4;
-      celda.textContent = "Todavía no hay participantes.";
-
-      fila.appendChild(celda);
-      ranking.appendChild(fila);
-      return;
+      celda.textContent =
+        "No se pudo cargar la clasificación.";
     }
-
-    let posicion = 1;
-
-    snapshot.forEach((documento) => {
-      const datos = documento.data();
-
-      const fila = document.createElement("tr");
-
-      const valores = [
-        posicion,
-        datos.nombre || "Sin nombre",
-        datos.puntos || 0,
-        datos.banderas || 0
-      ];
-
-      valores.forEach((valor) => {
-        const celda = document.createElement("td");
-        celda.textContent = valor;
-        fila.appendChild(celda);
-      });
-
-      ranking.appendChild(fila);
-      posicion++;
-    });
-
-  }, (error) => {
-    console.error(error);
-    ranking.innerHTML = "";
-
-    const fila = document.createElement("tr");
-    const celda = document.createElement("td");
-
-    celda.colSpan = 4;
-    celda.textContent =
-      "No se pudo cargar la clasificación.";
-
-    fila.appendChild(celda);
-    ranking.appendChild(fila);
-  });
+  );
 }
 
-// FINALIZAR
+// FINALIZAR JUEGO
 
 function finalizarJuego() {
+  inicio.classList.add("oculto");
   juego.classList.add("oculto");
   final.classList.remove("oculto");
 
-  document.getElementById("resultadoFinal").textContent =
-    `${jugador.nombre}: ${puntos} puntos y ${banderas} banderas.`;
+  const nombre =
+    jugador?.nombre || "Participante";
+
+  document.getElementById("resultadoFinal")
+    .textContent =
+      `${nombre}: ${puntos} puntos y ${banderas} banderas.`;
 
   window.scrollTo(0, 0);
 }
 
 // INICIAR
-
 iniciarFirebase();
