@@ -1,4 +1,3 @@
-
 import { questions } from "./questions.js";
 import { firebaseConfig, configured } from "./firebase-config.js";
 
@@ -26,7 +25,9 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
-// ELEMENTOS DE LA PÁGINA
+// ========================================
+// ELEMENTOS DEL VIDEOJUEGO
+// ========================================
 
 const inicio = document.getElementById("pantallaInicio");
 const juego = document.getElementById("pantallaJuego");
@@ -43,7 +44,9 @@ const btnPista = document.getElementById("btnPista");
 const opciones = document.getElementById("opciones");
 const ranking = document.getElementById("tablaRanking");
 
-// VARIABLES DEL JUEGO
+// ========================================
+// VARIABLES
+// ========================================
 
 let auth;
 let db;
@@ -53,19 +56,21 @@ let jugador = null;
 let indice = 0;
 let puntos = 0;
 let banderas = 0;
+
 let respondida = false;
 let pistaUsada = false;
 let guardando = false;
-let intentos = 0;
 
 let cancelarRanking = null;
 
-// INICIAR FIREBASE
+// ========================================
+// CONECTAR FIREBASE
+// ========================================
 
-async function iniciarFirebase() {
+function iniciarFirebase() {
   if (!configured) {
     mensajeInicio.textContent =
-      "Firebase todavía no está configurado.";
+      "Firebase no está configurado.";
     btnIniciar.disabled = true;
     return;
   }
@@ -81,16 +86,7 @@ async function iniciarFirebase() {
       "Conectando con la competencia...";
 
     onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        usuario = user;
-
-        if (!cancelarRanking) {
-          escucharRanking();
-        }
-
-        await recuperarPartida();
-
-      } else {
+      if (!user) {
         usuario = null;
 
         try {
@@ -98,22 +94,33 @@ async function iniciarFirebase() {
         } catch (error) {
           console.error(error);
           mensajeInicio.textContent =
-            "No fue posible iniciar sesión.";
+            "No se pudo conectar con Firebase.";
         }
+        return;
       }
+
+      usuario = user;
+
+      if (!cancelarRanking) {
+        escucharRanking();
+      }
+
+      await recuperarPartida();
     });
 
   } catch (error) {
     console.error(error);
     mensajeInicio.textContent =
-      "Error de conexión con Firebase.";
+      "Error al iniciar el videojuego.";
   }
 }
 
-// RECUPERAR UNA PARTIDA EXISTENTE
+// ========================================
+// RECUPERAR PROGRESO
+// ========================================
 
 async function recuperarPartida() {
-  if (!usuario) return;
+  if (!usuario || !db) return;
 
   btnIniciar.disabled = true;
 
@@ -126,51 +133,57 @@ async function recuperarPartida() {
 
     const resultado = await getDoc(referencia);
 
-    if (resultado.exists()) {
-      jugador = resultado.data();
-
-      puntos = Number(jugador.puntos) || 0;
-      banderas = Number(jugador.banderas) || 0;
-
-      indice = Math.min(
-        banderas,
-        questions.length
-      );
-
-      nombreInput.value = jugador.nombre || "";
-      modalidadInput.value =
-        jugador.modalidad || "Individual";
-
-      document.getElementById("nombreJugador")
-        .textContent = jugador.nombre || "Participante";
-
-      actualizarMarcadores();
-
-      inicio.classList.add("oculto");
-
-      if (jugador.finalizado ||
-          indice >= questions.length) {
-        finalizarJuego();
-      } else {
-        final.classList.add("oculto");
-        juego.classList.remove("oculto");
-        mostrarPregunta();
-      }
-
-    } else {
+    if (!resultado.exists()) {
       btnIniciar.disabled = false;
       mensajeInicio.textContent = "";
+      return;
+    }
+
+    jugador = resultado.data();
+
+    puntos = Number(jugador.puntos) || 0;
+    banderas = Number(jugador.banderas) || 0;
+
+    indice = Math.min(banderas, questions.length);
+
+    nombreInput.value = jugador.nombre || "";
+
+    const modalidadGuardada = jugador.modalidad;
+    const existeModalidad = Array.from(
+      modalidadInput.options
+    ).some(op => op.value === modalidadGuardada);
+
+    if (existeModalidad) {
+      modalidadInput.value = modalidadGuardada;
+    }
+
+    document.getElementById("nombreJugador")
+      .textContent = jugador.nombre || "Participante";
+
+    actualizarMarcadores();
+
+    inicio.classList.add("oculto");
+
+    if (jugador.finalizado ||
+        indice >= questions.length) {
+      finalizarJuego();
+    } else {
+      final.classList.add("oculto");
+      juego.classList.remove("oculto");
+      mostrarPregunta();
     }
 
   } catch (error) {
     console.error(error);
     mensajeInicio.textContent =
-      "No se pudo recuperar la partida.";
+      "No se pudo recuperar el progreso.";
     btnIniciar.disabled = false;
   }
 }
 
-// REGISTRAR NUEVO PARTICIPANTE
+// ========================================
+// REGISTRAR PARTICIPANTE
+// ========================================
 
 btnIniciar.addEventListener("click", async () => {
   if (guardando) return;
@@ -178,15 +191,15 @@ btnIniciar.addEventListener("click", async () => {
   const nombre = nombreInput.value.trim();
   const modalidad = modalidadInput.value;
 
-  if (nombre.length < 2) {
+  if (nombre.length < 2 || nombre.length > 60) {
     mensajeInicio.textContent =
-      "Escribe un nombre de al menos dos caracteres.";
+      "Escribe un nombre de 2 a 60 caracteres.";
     return;
   }
 
   if (!usuario || !db) {
     mensajeInicio.textContent =
-      "Espera a que se establezca la conexión.";
+      "Espera a que Firebase se conecte.";
     return;
   }
 
@@ -209,8 +222,8 @@ btnIniciar.addEventListener("click", async () => {
 
     jugador = {
       uid: usuario.uid,
-      nombre: nombre,
-      modalidad: modalidad,
+      nombre,
+      modalidad,
       puntos: 0,
       banderas: 0,
       nivel: 1,
@@ -227,12 +240,12 @@ btnIniciar.addEventListener("click", async () => {
     banderas = 0;
     indice = 0;
 
+    document.getElementById("nombreJugador")
+      .textContent = nombre;
+
     inicio.classList.add("oculto");
     final.classList.add("oculto");
     juego.classList.remove("oculto");
-
-    document.getElementById("nombreJugador")
-      .textContent = nombre;
 
     actualizarMarcadores();
     mostrarPregunta();
@@ -240,7 +253,7 @@ btnIniciar.addEventListener("click", async () => {
   } catch (error) {
     console.error(error);
     mensajeInicio.textContent =
-      "No se pudo registrar el participante.";
+      "No se pudo registrar. Revisa Firebase.";
     btnIniciar.disabled = false;
 
   } finally {
@@ -248,7 +261,9 @@ btnIniciar.addEventListener("click", async () => {
   }
 });
 
-// MOSTRAR PREGUNTA
+// ========================================
+// MOSTRAR PREGUNTAS
+// ========================================
 
 function mostrarPregunta() {
   if (indice >= questions.length) {
@@ -260,19 +275,16 @@ function mostrarPregunta() {
 
   respondida = false;
   pistaUsada = false;
-  intentos = 0;
 
   document.getElementById("numeroPregunta")
     .textContent =
       `MISIÓN ${indice + 1} DE ${questions.length}`;
 
   document.getElementById("tituloPregunta")
-    .textContent =
-      "🚩 " + pregunta.title;
+    .textContent = "🚩 " + pregunta.title;
 
   document.getElementById("nivelPregunta")
-    .textContent =
-      "Nivel: " + pregunta.level;
+    .textContent = "Nivel: " + pregunta.level;
 
   document.getElementById("codigoPython")
     .textContent = pregunta.code;
@@ -297,6 +309,7 @@ function mostrarPregunta() {
   pregunta.options.forEach((opcion, posicion) => {
     const boton = document.createElement("button");
 
+    boton.type = "button";
     boton.className = "opcion";
     boton.textContent = opcion;
 
@@ -308,7 +321,9 @@ function mostrarPregunta() {
   });
 }
 
-// COMPROBAR RESPUESTA
+// ========================================
+// COMPROBAR RESPUESTAS
+// ========================================
 
 async function comprobarRespuesta(posicion, boton) {
   if (respondida || guardando) return;
@@ -319,14 +334,11 @@ async function comprobarRespuesta(posicion, boton) {
     document.getElementById("mensajeRespuesta");
 
   if (posicion !== pregunta.answer) {
-    intentos++;
-
     boton.classList.add("incorrecta");
     boton.disabled = true;
 
     mensaje.textContent =
-      "❌ Respuesta incorrecta. Analiza el código e intenta nuevamente.";
-
+      "❌ Respuesta incorrecta. Intenta nuevamente.";
     return;
   }
 
@@ -379,17 +391,23 @@ async function comprobarRespuesta(posicion, boton) {
 
     actualizarMarcadores();
 
+    // Celebración solo después de guardar.
+    mostrarCelebracion(puntosGanados);
+
   } catch (error) {
     console.error(error);
+
     mensaje.textContent =
-      "No se pudo guardar la bandera. Intenta nuevamente.";
+      "No se pudo guardar la bandera. Intenta otra vez.";
 
   } finally {
     guardando = false;
   }
 }
 
-// MOSTRAR PISTA
+// ========================================
+// MOSTRAR PISTAS
+// ========================================
 
 btnPista.addEventListener("click", () => {
   if (respondida || guardando || pistaUsada) {
@@ -411,7 +429,9 @@ btnPista.addEventListener("click", () => {
   btnPista.disabled = true;
 });
 
-// SIGUIENTE PREGUNTA
+// ========================================
+// AVANZAR DE MISIÓN
+// ========================================
 
 btnSiguiente.addEventListener("click", () => {
   if (!respondida || guardando) return;
@@ -425,11 +445,15 @@ btnSiguiente.addEventListener("click", () => {
   }
 });
 
-// ACTUALIZAR MARCADORES
+// ========================================
+// ACTUALIZAR PUNTOS Y BANDERAS
+// ========================================
 
 function actualizarMarcadores() {
-  document.getElementById("puntos")
-    .textContent = puntos;
+  const marcadorPuntos =
+    document.getElementById("puntos");
+
+  marcadorPuntos.textContent = puntos;
 
   document.getElementById("banderas")
     .textContent = banderas;
@@ -441,7 +465,82 @@ function actualizarMarcadores() {
     .style.width = porcentaje + "%";
 }
 
-// RANKING EN TIEMPO REAL
+// ========================================
+// CELEBRACIÓN DE BANDERA
+// ========================================
+
+function mostrarCelebracion(puntosGanados) {
+  const anterior = document.querySelector(
+    ".celebracion-bandera"
+  );
+
+  if (anterior) anterior.remove();
+
+  const celebracion = document.createElement("div");
+  celebracion.className = "celebracion-bandera";
+
+  const contenido = document.createElement("div");
+  contenido.className = "celebracion-contenido";
+  contenido.setAttribute("role", "dialog");
+  contenido.setAttribute("aria-modal", "true");
+  contenido.setAttribute(
+    "aria-label",
+    "Bandera capturada"
+  );
+
+  const icono = document.createElement("div");
+  icono.className = "celebracion-icono";
+  icono.textContent = "🚩";
+
+  const titulo = document.createElement("h2");
+  titulo.className = "celebracion-titulo";
+  titulo.textContent = "¡BANDERA CAPTURADA!";
+
+  const felicitacion = document.createElement("p");
+  felicitacion.textContent = "¡Excelente trabajo!";
+
+  const premio = document.createElement("div");
+  premio.className = "celebracion-puntos";
+  premio.textContent = `+${puntosGanados} PUNTOS`;
+
+  const mensaje = document.createElement("p");
+  mensaje.textContent =
+    "🏆 ¡Continúa conquistando misiones!";
+
+  const boton = document.createElement("button");
+  boton.type = "button";
+  boton.className = "celebracion-boton";
+  boton.textContent = "¡CONTINUAR!";
+
+  contenido.append(
+    icono,
+    titulo,
+    felicitacion,
+    premio,
+    mensaje,
+    boton
+  );
+
+  celebracion.appendChild(contenido);
+  document.body.appendChild(celebracion);
+
+  const marcador = document.getElementById("puntos");
+
+  marcador.classList.remove("puntos-animados");
+  void marcador.offsetWidth;
+  marcador.classList.add("puntos-animados");
+
+  boton.focus();
+
+  boton.addEventListener("click", () => {
+    celebracion.remove();
+    btnSiguiente.focus();
+  });
+}
+
+// ========================================
+// CLASIFICACIÓN EN TIEMPO REAL
+// ========================================
 
 function escucharRanking() {
   const consulta = query(
@@ -473,8 +572,23 @@ function escucharRanking() {
         const datos = documento.data();
         const fila = ranking.insertRow();
 
+        let medalla = String(posicion);
+
+        if (posicion === 1) {
+          medalla = "🥇 1.º";
+          fila.classList.add("primero-ranking");
+
+        } else if (posicion === 2) {
+          medalla = "🥈 2.º";
+          fila.classList.add("segundo-ranking");
+
+        } else if (posicion === 3) {
+          medalla = "🥉 3.º";
+          fila.classList.add("tercero-ranking");
+        }
+
         const valores = [
-          posicion++,
+          medalla,
           datos.nombre || "Sin nombre",
           Number(datos.puntos) || 0,
           Number(datos.banderas) || 0
@@ -484,6 +598,8 @@ function escucharRanking() {
           const celda = fila.insertCell();
           celda.textContent = String(valor);
         });
+
+        posicion++;
       });
     },
 
@@ -502,22 +618,68 @@ function escucharRanking() {
   );
 }
 
-// FINALIZAR JUEGO
+// ========================================
+// PREMIACIÓN FINAL
+// ========================================
 
 function finalizarJuego() {
   inicio.classList.add("oculto");
   juego.classList.add("oculto");
   final.classList.remove("oculto");
 
-  const nombre =
+  const resultado =
+    document.getElementById("resultadoFinal");
+
+  resultado.replaceChildren();
+
+  const premio = document.createElement("div");
+  premio.className = "premiacion-final";
+
+  const trofeo = document.createElement("div");
+  trofeo.className = "premiacion-trofeo";
+  trofeo.textContent = "🏆";
+
+  const titulo = document.createElement("h2");
+  titulo.textContent = "¡MISIÓN COMPLETADA!";
+
+  const nombre = document.createElement("h3");
+  nombre.textContent =
     jugador?.nombre || "Participante";
 
-  document.getElementById("resultadoFinal")
-    .textContent =
-      `${nombre}: ${puntos} puntos y ${banderas} banderas.`;
+  const felicitacion = document.createElement("p");
+  felicitacion.textContent =
+    "¡Felicitaciones por completar el desafío Python!";
+
+  const puntuacion = document.createElement("div");
+  puntuacion.className = "premiacion-puntos";
+  puntuacion.textContent = `${puntos} PUNTOS`;
+
+  const insignias = document.createElement("p");
+  insignias.textContent =
+    `🚩 ${banderas} de ${questions.length} banderas capturadas`;
+
+  const mensaje = document.createElement("p");
+  mensaje.textContent =
+    "¡Has superado el desafío de programación!";
+
+  premio.append(
+    trofeo,
+    titulo,
+    nombre,
+    felicitacion,
+    puntuacion,
+    insignias,
+    mensaje
+  );
+
+  resultado.appendChild(premio);
 
   window.scrollTo(0, 0);
 }
 
-// INICIAR
+// ========================================
+// INICIAR EL VIDEOJUEGO
+// ========================================
+
 iniciarFirebase();
+
