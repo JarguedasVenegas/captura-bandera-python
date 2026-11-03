@@ -60,6 +60,8 @@ let banderas = 0;
 let respondida = false;
 let pistaUsada = false;
 let guardando = false;
+let intentosFallidos = 0;
+let esperandoReintento = false;
 
 let cancelarRanking = null;
 
@@ -275,6 +277,8 @@ function mostrarPregunta() {
 
   respondida = false;
   pistaUsada = false;
+  intentosFallidos = 0;
+  esperandoReintento = false;
 
   document.getElementById("numeroPregunta")
     .textContent =
@@ -303,6 +307,7 @@ function mostrarPregunta() {
 
   btnPista.disabled = false;
   btnSiguiente.classList.add("oculto");
+  quitarBotonReintentar();
 
   opciones.replaceChildren();
 
@@ -326,7 +331,7 @@ function mostrarPregunta() {
 // ========================================
 
 async function comprobarRespuesta(posicion, boton) {
-  if (respondida || guardando) return;
+  if (respondida || guardando || esperandoReintento) return;
 
   const pregunta = questions[indice];
 
@@ -334,19 +339,23 @@ async function comprobarRespuesta(posicion, boton) {
     document.getElementById("mensajeRespuesta");
 
   if (posicion !== pregunta.answer) {
-    boton.classList.add("incorrecta");
-    boton.disabled = true;
-
-    mensaje.textContent =
-      "❌ Respuesta incorrecta. Intenta nuevamente.";
+    // Un intento fallido bloquea todas las opciones hasta pulsar Reintentar.
+    intentosFallidos++;
+    esperandoReintento = true;
+    boton.classList.add("incorrecta", "sacudida");
+    opciones.querySelectorAll("button").forEach(b => b.disabled = true);
+    mensaje.textContent = `❌ Respuesta incorrecta. Intento ${intentosFallidos}. Perderás ${Math.min(intentosFallidos * 25, Math.max(0, pregunta.points - 10))} puntos del valor de esta misión si aciertas.`;
+    reproducirEfecto("error");
+    mostrarBotonReintentar();
     return;
   }
 
+  reproducirEfecto("acierto");
   guardando = true;
 
   const puntosGanados = Math.max(
     10,
-    pregunta.points - (pistaUsada ? 20 : 0)
+    pregunta.points - (pistaUsada ? 20 : 0) - (intentosFallidos * 25)
   );
 
   const nuevosPuntos = puntos + puntosGanados;
@@ -410,7 +419,7 @@ async function comprobarRespuesta(posicion, boton) {
 // ========================================
 
 btnPista.addEventListener("click", () => {
-  if (respondida || guardando || pistaUsada) {
+  if (respondida || guardando || pistaUsada || esperandoReintento) {
     return;
   }
 
@@ -521,6 +530,7 @@ function mostrarCelebracion(puntosGanados) {
     boton
   );
 
+  reproducirEfecto("bandera");
   celebracion.appendChild(contenido);
   document.body.appendChild(celebracion);
 
@@ -672,6 +682,7 @@ function finalizarJuego() {
     mensaje
   );
 
+  reproducirEfecto("final");
   resultado.appendChild(premio);
 
   window.scrollTo(0, 0);
@@ -681,5 +692,121 @@ function finalizarJuego() {
 // INICIAR EL VIDEOJUEGO
 // ========================================
 
-iniciarFirebase();
 
+// ========================================
+// REINTENTO CON PENALIZACIÓN
+// ========================================
+function quitarBotonReintentar() {
+  document.getElementById("btnReintentar")?.remove();
+}
+
+function mostrarBotonReintentar() {
+  quitarBotonReintentar();
+  const boton = document.createElement("button");
+  boton.id = "btnReintentar";
+  boton.type = "button";
+  boton.textContent = "🔄 Reintentar (con menos puntos)";
+  boton.addEventListener("click", () => {
+    esperandoReintento = false;
+    opciones.querySelectorAll("button").forEach(b => {
+      b.disabled = false;
+      b.classList.remove("incorrecta", "sacudida");
+    });
+    document.getElementById("mensajeRespuesta").textContent =
+      `Nuevo intento. Penalización acumulada: ${intentosFallidos * 25} puntos. Mínimo por acierto: 10 puntos.`;
+    quitarBotonReintentar();
+  });
+  opciones.after(boton);
+}
+
+// ========================================
+// SONIDOS ORIGINALES CON WEB AUDIO
+// No necesita archivos MP3 externos.
+// El usuario activa el sonido con un clic.
+// ========================================
+let contextoAudio = null;
+let musicaActiva = false;
+let intervaloMusica = null;
+let notaMusica = 0;
+const notasMusica = [261.63, 329.63, 392, 523.25, 392, 329.63, 293.66, 349.23];
+
+function obtenerAudio() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+  if (!contextoAudio) contextoAudio = new AudioContextClass();
+  if (contextoAudio.state === "suspended") contextoAudio.resume();
+  return contextoAudio;
+}
+
+function tocarNota(frecuencia, duracion = 0.12, volumen = 0.035, tipo = "sine") {
+  const ctx = obtenerAudio();
+  if (!ctx) return;
+  const oscilador = ctx.createOscillator();
+  const ganancia = ctx.createGain();
+  oscilador.type = tipo;
+  oscilador.frequency.value = frecuencia;
+  ganancia.gain.setValueAtTime(volumen, ctx.currentTime);
+  ganancia.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duracion);
+  oscilador.connect(ganancia);
+  ganancia.connect(ctx.destination);
+  oscilador.start();
+  oscilador.stop(ctx.currentTime + duracion);
+}
+
+function reproducirEfecto(tipo) {
+  // Los efectos se escuchan solo cuando el usuario activó el audio.
+  if (!musicaActiva) return;
+  if (tipo === "error") {
+    tocarNota(180, 0.22, 0.055, "triangle");
+  } else if (tipo === "acierto") {
+    tocarNota(523.25, 0.14, 0.045, "sine");
+  } else if (tipo === "bandera" || tipo === "final") {
+    [392, 523.25, 659.25, 783.99].forEach((nota, i) => {
+      // Web Audio programa el inicio sin depender de temporizadores.
+      const ctx = obtenerAudio();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const t = ctx.currentTime + i * 0.12;
+      osc.type = "triangle";
+      osc.frequency.value = nota;
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.linearRampToValueAtTime(0.055, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.19);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.2);
+    });
+  }
+}
+
+function crearControlAudio() {
+  const boton = document.createElement("button");
+  boton.id = "btnMusica";
+  boton.type = "button";
+  boton.textContent = "🔇 Activar música";
+  boton.setAttribute("aria-pressed", "false");
+  boton.addEventListener("click", () => {
+    musicaActiva = !musicaActiva;
+    boton.textContent = musicaActiva ? "🔊 Silenciar música" : "🔇 Activar música";
+    boton.setAttribute("aria-pressed", String(musicaActiva));
+    if (musicaActiva) {
+      obtenerAudio();
+      notaMusica = 0;
+      tocarNota(notasMusica[notaMusica++], 0.18, 0.018);
+      intervaloMusica = setInterval(() => {
+        if (document.hidden) return;
+        tocarNota(notasMusica[notaMusica++ % notasMusica.length], 0.17, 0.018);
+      }, 430);
+    } else {
+      clearInterval(intervaloMusica);
+      intervaloMusica = null;
+    }
+  });
+  (document.querySelector("header") || document.body).appendChild(boton);
+}
+
+crearControlAudio();
+
+iniciarFirebase();
